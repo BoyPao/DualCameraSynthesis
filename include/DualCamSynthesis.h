@@ -19,9 +19,9 @@
 size_t getAlignedStride(int32_t num, int32_t stride);
 
 enum DUAL_CAM_SYNTHESIS_IMG_FORMAT {
-	YUV420NV12 = 0,
-	YUV420NV21,
-	NOT_SUPPORT,
+	DCS_YUV420NV12 = 0,
+	DCS_YUV420NV21,
+	DCS_NOT_SUPPORT,
 };
 
 enum DUAL_CAM_SYNTHESIS_OVERRANGE_STATE {
@@ -43,7 +43,7 @@ enum DUAL_CAM_SYNTHESIS_RESULT {
 	NOT_INITED,
 	NO_MEMORY,
 	EMPTY_INPUT,
-	INVILED_PARAM,
+	INVALID_PARAM,
 	ORDER_ERROR,
 };
 
@@ -74,19 +74,31 @@ struct DUAL_CAM_SYNTHESIS_PARAM {
 class SynthesisEngine {
 
 public:
-	SynthesisEngine() {};
-	~SynthesisEngine() { Deinit(); };
+	SynthesisEngine();
+	~SynthesisEngine();
 
-	int32_t Initialize(DUAL_CAM_SYNTHESIS_PARAM param);
+	int32_t Initialize();
 	int32_t Deinit();
 	int32_t ProcessDownScale(void* src);
+	int32_t ProcessDownScale(void* src, void* srcUV);
 	int32_t ProcessSynthesis(void* frontData, void* backData);
+	int32_t ProcessSynthesis(void* frontDataY, void* frontDataUV, 
+							 void* backDataY, void* backDataUV);
 	int32_t SetParams(DUAL_CAM_SYNTHESIS_PARAM param);
+	int32_t SetInitParams(uint32_t forntW, uint32_t frontH, 
+					uint32_t scaledW, uint32_t scaledH,
+					uint32_t backW, uint32_t backH,
+					uint32_t stride, uint32_t scanline,
+					uint32_t targetX, uint32_t targetY,
+					uint32_t format);
 	int32_t UpdateTargetPoint(BEGIN_POINT point);
 	int32_t CheckParams();
 	int32_t FixTargetPoint();
-private:
+
 	bool mInited;
+
+private:
+	bool mParamValid;
 	bool mScaled;
 	DUAL_CAM_SYNTHESIS_PARAM mParam;
 	uint8_t* mScaleBuf;
